@@ -1,7 +1,7 @@
 from random import randrange
 
-from .common import Result, Content
-from .game_engine import GameEngine
+from common import Result, Content
+from game_engine import GameEngine
 
 
 class MinesweeperSolver:

@@ -1,6 +1,6 @@
 from random import randrange
 
-from ai.minesweeper.common import Event, Result, Content
+from common import Event, Result, Content
 
 
 class GameEngine:

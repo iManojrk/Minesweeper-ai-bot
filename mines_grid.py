@@ -2,9 +2,9 @@ from itertools import chain
 
 import gi
 
-from ai.minesweeper.common import Content
-from ai.minesweeper.game_engine import GameEngine
-from ai.minesweeper.solver import MinesweeperSolver
+from common import Content
+from game_engine import GameEngine
+from solver import MinesweeperSolver
 
 gi.require_version('Gtk', '3.0')
 
@@ -77,8 +77,8 @@ class MinesGrid(Gtk.Grid):
     def on_button_press_event(self, button, event_button: Gdk.EventButton, position):
         r, c = position
         if (event_button.button == 1 and event_button.type == Gdk.EventType._2BUTTON_PRESS and
-                    self.engine.minefield[r][c] == sum((self.engine.minefield[ri][ci] == Content.Flag)
-                                                       for ri, ci in self.engine.cells_surrounding(r, c))):
+                self.engine.minefield[r][c] == sum((self.engine.minefield[ri][ci] == Content.Flag)
+                                                   for ri, ci in self.engine.cells_surrounding(r, c))):
             for ri, ci in self.engine.cells_surrounding(r, c):
                 self.engine.dig(ri, ci)
 

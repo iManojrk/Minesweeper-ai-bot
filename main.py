@@ -1,6 +1,6 @@
 import gi
 
-from ai.minesweeper.mines_grid import MinesGrid
+from mines_grid import MinesGrid
 
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
