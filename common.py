@@ -7,7 +7,8 @@ class Event:
         self._callbacks = []
 
     def add(self, other):
-        if not isinstance(other, FunctionType) and not isinstance(other, MethodType):
+        if (not isinstance(other, FunctionType) and
+                not isinstance(other, MethodType)):
             raise TypeError('invalid function or method')
         self._callbacks.append(other)
 

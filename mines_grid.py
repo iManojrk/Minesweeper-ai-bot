@@ -15,8 +15,8 @@ class MinesGrid(Gtk.Grid):
     def __init__(self, game=None, **properties):
         Gtk.Grid.__init__(self, **properties)
         self.engine = GameEngine(game)
-        self.engine.update_event.add(self.on_cell_update)
-        self.engine.game_over_event.add(self.on_game_over)
+        self.engine.update_event.add(self._on_cell_update)
+        self.engine.game_over_event.add(self._on_game_over)
         self.game_in_progress = True
         self.solver = MinesweeperSolver(self.engine)
 
@@ -27,9 +27,11 @@ class MinesGrid(Gtk.Grid):
             for ci in range(self.engine.cols):
                 button = Gtk.ToggleButton()
                 row.append(button)
-                button.connect('button-release-event', self.on_button_release_event, (ri, ci))
-                button.connect('button-press-event', self.on_button_press_event, (ri, ci))
-                button.connect('toggled', self.on_button_toggled, (ri, ci))
+                button.connect('button-release-event',
+                               self._on_button_release_event, (ri, ci))
+                button.connect('button-press-event',
+                               self._on_button_press_event, (ri, ci))
+                button.connect('toggled', self._on_button_toggled, (ri, ci))
                 button.set_size_request(35, 35)
                 self.attach(button, ci, ri, 1, 1)
 
@@ -47,10 +49,11 @@ class MinesGrid(Gtk.Grid):
             for grid_button in chain(*self.buttons):
                 grid_button.set_sensitive(False)
 
-    def on_cell_update(self, r, c):
+    def _on_cell_update(self, r, c):
         value = self.engine.minefield[r][c]
         button = self.buttons[r][c]
-        button.set_active(not self.engine.is_unknown(r, c) and value != Content.Flag)
+        button.set_active(not self.engine.is_unknown(r, c) and
+                          value != Content.Flag)
         if value == Content.Mine:
             button.set_label('*')
         elif value == Content.BlownMine:
@@ -65,22 +68,27 @@ class MinesGrid(Gtk.Grid):
         elif value == Content.Unknown:
             button.set_label('')
 
-    def on_button_toggled(self, button, position):
-        button.set_active(Content.Unknown != self.engine.minefield[position[0]][position[1]] != Content.Flag)
+    def _on_button_toggled(self, button, position):
+        button.set_active(not self.engine.is_unknown(*position) and
+                          self.engine.minefield[position[0]][position[1]] !=
+                          Content.Flag)
 
-    def on_button_release_event(self, button, event_button, position):
+    def _on_button_release_event(self, button, event_button, position):
         if event_button.button == 1:
             self.engine.dig(*position)
         elif event_button.button == 3:
             self.engine.toggle_flag(*position)
 
-    def on_button_press_event(self, button, event_button: Gdk.EventButton, position):
+    def _on_button_press_event(self, button, event_button: Gdk.EventButton,
+                               position):
         r, c = position
-        if (event_button.button == 1 and event_button.type == Gdk.EventType._2BUTTON_PRESS and
-                self.engine.minefield[r][c] == sum((self.engine.minefield[ri][ci] == Content.Flag)
-                                                   for ri, ci in self.engine.cells_surrounding(r, c))):
+        if (event_button.button == 1 and
+                event_button.type == Gdk.EventType.DOUBLE_BUTTON_PRESS and
+                self.engine.minefield[r][c] ==
+                sum((self.engine.minefield[ri][ci] == Content.Flag)
+                    for ri, ci in self.engine.cells_surrounding(r, c))):
             for ri, ci in self.engine.cells_surrounding(r, c):
                 self.engine.dig(ri, ci)
 
-    def on_game_over(self, result):
+    def _on_game_over(self, result):
         self.end_game()

@@ -21,15 +21,17 @@ class MinesweeperUI:
         self.solve_button = builder.get_object('solve_button')
 
         self.mines_grid = MinesGrid(1)
-        self.content_box.pack_end(self.mines_grid, expand=True, fill=True, padding=0)
-        self.mines_grid.engine.flags_changed_event.add(self.on_flags_changed)
-        self.on_flags_changed()
-        self.mines_grid.engine.game_over_event.add(self.on_game_over)
+        self.content_box.pack_end(self.mines_grid, expand=True, fill=True,
+                                  padding=0)
+        self.mines_grid.engine.flags_changed_event.add(self._on_flags_changed)
+        self._on_flags_changed()
+        self.mines_grid.engine.game_over_event.add(self._on_game_over)
 
     # Event Handlers
-    def on_flags_changed(self):
-        self.flags_count_label.set_label("{}/{}".format(self.mines_grid.engine.flags,
-                                                        self.mines_grid.engine.mine_count))
+    def _on_flags_changed(self):
+        self.flags_count_label \
+            .set_label("{}/{}".format(self.mines_grid.engine.flags,
+                                      self.mines_grid.engine.mine_count))
 
     def on_new_game_menuitem_activate(self, *args):
         self.mines_grid.new_game()
@@ -38,11 +40,10 @@ class MinesweeperUI:
     def on_solve_button_clicked(self, *args):
         self.mines_grid.solver.solve()
 
-    def on_game_over(self, result):
+    def _on_game_over(self, result):
         self.solve_button.set_sensitive(False)
 
 
 ui = MinesweeperUI()
-ui.window.connect('delete-event', Gtk.main_quit)
 ui.window.show_all()
 Gtk.main()
