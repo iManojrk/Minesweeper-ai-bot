@@ -44,7 +44,7 @@ class GameEngine:
             ci = randrange(self.cols)
             if self._mines[ri][ci] >= 0:
                 self._mines[ri][ci] = -10
-                for rj, cj in self.cells_surrounding(ri, ci):
+                for rj, cj in self.cells_around(ri, ci):
                     self._mines[rj][cj] += 1
                 mi -= 1  # decrement only when a mine is placed
 
@@ -69,7 +69,7 @@ class GameEngine:
             if not self.is_unknown(r, c):
                 continue
             if self._mines[r][c] == 0:
-                explore_stack.extend(self.cells_surrounding(r, c))
+                explore_stack.extend(self.cells_around(r, c))
             self.minefield[r][c] = self._mines[r][c]
             self.update_event.notify(r, c)
 
@@ -112,7 +112,7 @@ class GameEngine:
                      for c in range(self.cols)):
             yield r, c
 
-    def cells_surrounding(self, r, c):
+    def cells_around(self, r, c):
         for ri, ci in ((ri, ci)
                        for ri in range(max(0, r - 1), min(self.rows, r + 2))
                        for ci in range(max(0, c - 1), min(self.rows, c + 2))

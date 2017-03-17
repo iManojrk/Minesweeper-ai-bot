@@ -86,8 +86,8 @@ class MinesGrid(Gtk.Grid):
                 event_button.type == Gdk.EventType.DOUBLE_BUTTON_PRESS and
                 self.engine.minefield[r][c] ==
                 sum((self.engine.minefield[ri][ci] == Content.Flag)
-                    for ri, ci in self.engine.cells_surrounding(r, c))):
-            for ri, ci in self.engine.cells_surrounding(r, c):
+                    for ri, ci in self.engine.cells_around(r, c))):
+            for ri, ci in self.engine.cells_around(r, c):
                 self.engine.dig(ri, ci)
 
     def _on_game_over(self, result):

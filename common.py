@@ -1,3 +1,4 @@
+from collections import OrderedDict
 from enum import Enum, IntEnum
 from types import FunctionType, MethodType
 
@@ -48,3 +49,33 @@ class Content(IntEnum):
     M6 = 6
     M7 = 7
     M8 = 8
+
+
+class UniqueStack:
+    """
+    Stack which maintains uniqueness property by taking the items that are
+    reinserted and moving them to the top
+    """
+
+    def __init__(self):
+        self.store = OrderedDict()
+
+    def __len__(self):
+        return len(self.store)
+
+    def push(self, elem):
+        if elem in self.store:
+            self.store.move_to_end(elem)
+        else:
+            self.store[elem] = None
+
+    def push_all(self, other):
+        for elem in other:
+            self.push(elem)
+        return self
+
+    def pop(self):
+        return self.store.popitem()[0]
+
+    def clear(self):
+        self.store.clear()
