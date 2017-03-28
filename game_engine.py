@@ -1,6 +1,8 @@
 from random import randrange
 
 from common import Event, Result, Content
+from list2d import List2D
+from position import Position
 
 
 class GameEngine:
@@ -16,9 +18,10 @@ class GameEngine:
         else:
             self.rows, self.cols, self.mine_count = (int(s) for s
                                                      in input().split())
+        self.size = Position(self.rows, self.cols)
         self._flags = 0
-        self._mines = None
-        self.minefield = None
+        self._mines = List2D()
+        self.minefield = List2D()
         self.generate_minefield()
 
     @property
@@ -31,10 +34,13 @@ class GameEngine:
         self.flags_changed_event.notify()
 
     def generate_minefield(self):
-        self._mines = [[0 for ci in range(self.cols)]
-                       for ri in range(self.rows)]
-        self.minefield = [[Content.Unknown for ci in range(self.cols)]
-                          for ri in range(self.rows)]
+        self._mines = List2D(
+            [0 for ci in range(self.cols)] for ri in range(self.rows)
+        )
+        self.minefield = List2D(
+            [Content.Unknown for ci in range(self.cols)]
+            for ri in range(self.rows)
+        )
         self.flags = 0
         self.result = Result.OK
 
@@ -63,14 +69,16 @@ class GameEngine:
             self.game_over_event.notify(Result.Loss)
             return Result.Loss
 
-        explore_stack = [(r, c)]
+        explore_stack = [Position(r, c)]
         while explore_stack:
             r, c = explore_stack.pop()
             if not self.is_unknown(r, c):
                 continue
             if self._mines[r][c] == 0:
                 explore_stack.extend(self.cells_around(r, c))
-            self.minefield[r][c] = self._mines[r][c]
+            self.minefield[r][c] = Content(self._mines[r][c]
+                                           if self._mines[r][c] >= 0
+                                           else Content.NoMine)
             self.update_event.notify(r, c)
 
         self.result = Result.Win if self._is_win() else Result.OK
@@ -108,16 +116,15 @@ class GameEngine:
             self.update_event.notify(r, c)
 
     def all_indices(self):
-        for r, c in ((r, c) for r in range(self.rows)
-                     for c in range(self.cols)):
-            yield r, c
+        return Position.range(self.size)
 
     def cells_around(self, r, c):
-        for ri, ci in ((ri, ci)
-                       for ri in range(max(0, r - 1), min(self.rows, r + 2))
-                       for ci in range(max(0, c - 1), min(self.rows, c + 2))
-                       if ri != r or ci != c):
-            yield ri, ci
+        return (
+            Position(ri, ci)
+            for ri in range(max(0, r - 1), min(self.rows, r + 2))
+            for ci in range(max(0, c - 1), min(self.cols, c + 2))
+            if ri != r or ci != c
+        )
 
     def is_unknown(self, r, c):
         return (Content.Unknown == self.minefield[r][c] or

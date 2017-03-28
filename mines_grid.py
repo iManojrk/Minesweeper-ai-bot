@@ -32,12 +32,13 @@ class MinesGrid(Gtk.Grid):
                 button.connect('button-press-event',
                                self._on_button_press_event, (ri, ci))
                 button.connect('toggled', self._on_button_toggled, (ri, ci))
-                button.set_size_request(35, 35)
+                button.set_size_request(40, 40)
                 self.attach(button, ci, ri, 1, 1)
 
     def new_game(self):
         self.game_in_progress = True
         self.engine.generate_minefield()
+        self.solver.reset()
         for grid_button in chain(*self.buttons):
             grid_button.set_sensitive(True)
             grid_button.set_label('')

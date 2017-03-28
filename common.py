@@ -50,6 +50,17 @@ class Content(IntEnum):
     M7 = 7
     M8 = 8
 
+    def is_unknown(self):
+        return self == Content.Unknown or self == Content.QuestionMark
+
+    def is_number(self):
+        return self > Content.NoMine
+
+    def is_open(self):
+        return (self != Content.Unknown
+                and self != Content.Flag
+                and self != Content.QuestionMark)
+
 
 class UniqueStack:
     """
@@ -79,3 +90,5 @@ class UniqueStack:
 
     def clear(self):
         self.store.clear()
+
+
