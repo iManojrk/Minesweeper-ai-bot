@@ -60,7 +60,54 @@ class List2D(list):
         )
 
     def contents_around(self, position):
-        yield from (
+        return (
             self[position_i]
             for position_i in self.positions_around(position)
         )
+
+
+class View2D:
+    """ Encapsulates List2D object and offers a defined window of view into 
+    the List2D object - like a subsection of the List2D"""
+    def __init__(self, list2d, lower, upper):
+        self.list2d = list2d
+        self.lower = Position.cast(lower)
+        self.upper = Position.cast(upper)
+
+    def __getitem__(self, item):
+        return self.list2d[item]
+
+    def __setitem__(self, key, value):
+        self.list2d[key] = value
+
+    def __getattr__(self, item):
+        return getattr(self.list2d, item)
+
+    def __setattr__(self, key, value):
+        if key != 'list2d' and 'lower' != key != 'upper':
+            setattr(self.list2d, key, value)
+        else:
+            self.__dict__[key] = value
+
+    def positions_around(self, position):
+        position = Position.cast(position)
+        return (
+            Position(ri, ci)
+            for ri in range(max(self.lower.row, position.row - 1),
+                            min(self.upper.row, position.row + 2))
+            for ci in range(max(self.lower.col, position.col - 1),
+                            min(self.upper.col, position.col + 2))
+            if ri != position.row or ci != position.col
+        )
+
+    def apply_bounds(self, position):
+        if Position.check_bounds(position, self.lower, self.upper):
+            return Position.cast(position)
+        return Position(max(self.lower.row, min(position[0], self.upper.row)),
+                        max(self.lower.col, min(position[1], self.upper.col)))
+
+    def all_positions(self):
+        return Position.range(self.lower, self.upper)
+
+    range = List2D.range
+    contents_around = List2D.contents_around
